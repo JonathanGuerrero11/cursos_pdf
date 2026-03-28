@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mis Cursos</title>
+</head>
+<body>
+
+<h1>Catálogo de Cursos</h1>
+
+<div id="cursos"></div>
+
+<script>
+fetch("https://opensheet.elk.sh/1f3F9WluUGNdjtKPtGdBA1uVFaW_j_6B1kvo3SpHZ0oc/Hoja1")
+  .then(res => res.json())
+  .then(data => {
+    const contenedor = document.getElementById("cursos");
+
+    data.forEach(curso => {
+      const div = document.createElement("div");
+      div.style.border = "1px solid black";
+      div.style.margin = "10px";
+      div.style.padding = "10px";
+
+      div.innerHTML = `
+        <h3>${curso.Titulo}</h3>
+        <p>${curso.Descripcion}</p>
+        <a href="checkout.html?id=${curso.id}">
+          <button>Comprar</button>
+          </a>
+      `;
+
+      contenedor.appendChild(div);
+    });
+  });
+</script>
+
+</body>
+</html>

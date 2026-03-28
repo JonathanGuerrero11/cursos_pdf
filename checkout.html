@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Checkout</title>
+</head>
+<body>
+
+<h1>Comprar curso</h1>
+
+<div id="curso"></div>
+
+<button onclick="comprar()">Pagar</button>
+
+<script>
+// Obtener ID de la URL
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+// Traer cursos desde Google Sheets
+fetch("https://opensheet.elk.sh/1f3F9WluUGNdjtKPtGdBA1uVFaW_j_6B1kvo3SpHZ0oc/Hoja1")
+  .then(res => res.json())
+  .then(data => {
+    const curso = data.find(c => c.id == id);
+
+    document.getElementById("curso").innerHTML = `
+      <h2>${curso.Titulo}</h2>
+      <p>${curso.Descripcion}</p>
+    `;
+  });
+
+function comprar() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  fetch("https://jt-guergo-n8n.ejbcpe.easypanel.host/webhook-test/crear-pago?id=" + id)
+    .then(response => response.json())
+    .then(data => {
+      console.log("Respuesta:", data);
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Error: no llegó URL de pago");
+      }
+    })
+    .catch(error => {
+      console.error("Error:", error);
+      alert("Error conectando con n8n");
+    });
+}
+</script>
+
+</body>
+</html>
