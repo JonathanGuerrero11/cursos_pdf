@@ -82,7 +82,7 @@
 
   <script>
     const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
+    const payment_id = params.get("payment_id");
 
     if (!token) {
       document.body.innerHTML = "<h2>Acceso inválido</h2>";
@@ -92,7 +92,7 @@
     const maxIntentos = 5;
 
     function validarToken() {
-      fetch(`https://jt-guergo-n8n.ejbcpe.easypanel.host/webhook/validar-token?token=${token}`)
+      fetch(`https://jt-guergo-n8n.ejbcpe.easypanel.host/webhook/validar-pago?payment_id=${payment_id}`)
         .then(res => res.json())
         .then(data => {
 
