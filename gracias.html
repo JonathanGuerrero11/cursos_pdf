@@ -76,6 +76,51 @@
   <h1>Pago realizado</h1>
   <p>Tu compra fue exitosa. En breve recibirás tu PDF en el correo registrado.</p>
 
+  <a id="btn-descarga" href="#" style="display:none;">
+    Descargar PDF
+  </a>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (!token) {
+      document.body.innerHTML = "<h2>Acceso inválido</h2>";
+    }
+
+    let intentos = 0;
+    const maxIntentos = 5;
+
+    function validarToken() {
+      fetch(`https://jt-guergo-n8n.ejbcpe.easypanel.host/webhook/validar-token?token=${token}`)
+        .then(res => res.json())
+        .then(data => {
+
+          if (data.valid) {
+            const btn = document.getElementById("btn-descarga");
+            btn.href = data.pdf;
+            btn.style.display = "block";
+            return;
+          }
+
+          // 🔁 Reintento
+          if (intentos < maxIntentos) {
+            intentos++;
+            setTimeout(validarToken, 1500); // espera 1.5s
+          } else {
+            document.body.innerHTML = "<h2>Error validando tu compra</h2>";
+          }
+
+        })
+        .catch(() => {
+          document.body.innerHTML = "<h2>Error al validar acceso</h2>";
+        });
+    }
+
+    // Iniciar validación
+    validarToken();
+  </script>
+
   <a href="index.html" class="btn">Volver al catálogo</a>
 </div>
 
