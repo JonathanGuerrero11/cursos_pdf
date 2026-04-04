@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Procesando pago...</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(circle at top, #fff5e0, #f5f7fa);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .container {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    animation: fadeIn 0.8s ease;
+    max-width: 420px;
+  }
+
+  .icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    animation: pulse 1.5s infinite;
+  }
+
+  h1 {
+    margin: 10px 0;
+    color: #f59e0b;
+  }
+
+  p {
+    color: #6e6e73;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .loader {
+    margin-top: 20px;
+    font-size: 13px;
+    color: #999;
+  }
+
+  .btn {
+    display: none;
+    margin-top: 25px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #000, #333);
+    color: white;
+    text-decoration: none;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="icon">⏳</div>
+
+  <h1>Procesando tu pago</h1>
+
+  <p id="mensaje">
+    Estamos confirmando tu pago.<br><br>
+    Esto puede tardar unos segundos dependiendo del método utilizado.
+  </p>
+
+  <div class="loader" id="loader">
+    Validando pago...
+  </div>
+
+  <a id="manual-btn" class="btn">Ir a descarga</a>
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const payment_id = params.get("payment_id");
+
+  if (!payment_id) {
+    document.body.innerHTML = "<h2>Acceso inválido</h2>";
+  }
+
+  let intentos = 0;
+  const maxIntentos = 20; // ~30 segundos
+
+  function validarPago() {
+    fetch(`https://jt-guergo-n8n.ejbcpe.easypanel.host/webhook/validar-token?payment_id=${payment_id}`)
+      .then(res => res.json())
+      .then(data => {
+
+        if (data.valid) {
+          // 🔥 REDIRECCIÓN AUTOMÁTICA
+          window.location.href = data.pdf;
+          return;
+        }
+
+        // 🔁 Reintento
+        if (intentos < maxIntentos) {
+          intentos++;
+          setTimeout(validarPago, 1500);
+        } else {
+          document.getElementById("mensaje").innerHTML =
+            "Tu pago aún está pendiente.<br><br>Puedes esperar un poco más o intentar nuevamente.";
+
+          document.getElementById("loader").innerText = "Sigue en proceso...";
+
+          // Mostrar botón manual
+          const btn = document.getElementById("manual-btn");
+          btn.style.display = "inline-block";
+          btn.href = window.location.href;
+          btn.innerText = "Reintentar";
+        }
+
+      })
+      .catch(() => {
+        document.getElementById("mensaje").innerText =
+          "Error al validar el pago. Intenta nuevamente.";
+
+        const btn = document.getElementById("manual-btn");
+        btn.style.display = "inline-block";
+        btn.href = window.location.href;
+        btn.innerText = "Reintentar";
+      });
+  }
+
+  // 🚀 Inicia validación
+  validarPago();
+</script>
+
+</body>
+</html>
