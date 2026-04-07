@@ -111,7 +111,7 @@ const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 
 // Cargar curso
-fetch("https://opensheet.elk.sh/1f3F9WluUGNdjtKPtGdBA1uVFaW_j_6B1kvo3SpHZ0oc/Hoja1")
+fetch("https://jt-guergo-n8n.ejbcpe.easypanel.host/webhook/cursos")
   .then(res => res.json())
   .then(data => {
     const curso = data.find(c => c.id == id);
@@ -137,7 +137,7 @@ function comprar() {
       } else {
         alert("Error con el pago");
         btn.innerText = "Pagar ahora";
-        btn.disabled = false;wwww
+        btn.disabled = false;
       }
     })
     .catch(() => {
